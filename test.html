@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Test Mode</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Public Identification Test</h1>
+    <p>Look at eachimage and type the correct title</p>
+  </header>
+
+  <main>
+    <div id="test-container" class="test-container">
+      <!-- Test content will be loaded here by JavaScript -->
+      <div class="loading">Loading test questions...</div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Public Study & Test Application</p>
+  </footer>
+
+  <!-- Add this script tag before loading app.js to ensure the page is in test mode -->
+  <script>
+    // Flag to indicate this is the test page
+    window.isTestPage = true;
+    
+    // Enable partial answer matching (so full names aren't required)
+    window.allowPartialAnswers = true;
+    
+    // Debug function to check if elements are loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Test page DOM loaded');
+      console.log('Test container found:', !!document.getElementById('test-container'));
+      
+      // Force initialize test mode after a short delay
+      setTimeout(function() {
+        if (typeof initializeTestMode === 'function') {
+          console.log('Manually triggering test mode initialization');
+          initializeTestMode();
+        } else {
+          console.error('initializeTestMode function not found in app.js');
+        }
+      }, 500);
+    });
+  </script>
+  
+  <script src="app.js"></script>
+</body>
+</html>
