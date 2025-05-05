@@ -1,0 +1,244 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Ray Diagnosis App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@appwrite.io/sdk@15.0.0/dist/index.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-center mb-6">X-Ray Diagnosis App</h1>
+        
+        <!-- Navigation -->
+        <div class="flex justify-center space-x-4 mb-6">
+            <button id="homeBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Home</button>
+            <button id="studyBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Study Mode</button>
+            <button id="testBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Test Mode</button>
+            <button id="uploadBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Upload</button>
+        </div>
+
+        <!-- Home View -->
+        <div id="homeView" class="hidden">
+            <p class="text-center text-lg">Welcome! Choose a mode:</p>
+            <ul class="list-disc pl-6 mt-2 mx-auto max-w-md">
+                <li><strong>Study Mode</strong>: View X-ray images with their diagnoses.</li>
+                <li><strong>Test Mode</strong>: Test your skills by diagnosing a random X-ray.</li>
+                <li><strong>Upload</strong>: Add new X-ray images and diagnoses.</li>
+            </ul>
+        </div>
+
+        <!-- Study Mode View -->
+        <div id="studyView" class="hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Study Mode</h2>
+            <div id="studyGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- Test Mode View -->
+        <div id="testView" class="hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Test Mode</h2>
+            <div class="flex justify-center mb-4">
+                <img id="testImage" class="max-w-full h-auto rounded shadow" alt="X-ray Image">
+            </div>
+            <div class="text-center">
+                <input id="diagnosisInput" type="text" placeholder="Enter your diagnosis" class="border p-2 rounded w-full max-w-md mb-2">
+                <button id="submitDiagnosis" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Submit</button>
+                <p id="testFeedback" class="mt-2 text-lg"></p>
+            </div>
+            <button id="nextTest" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mx-auto block">Next Image</button>
+        </div>
+
+        <!-- Upload View -->
+        <div id="uploadView" class="hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Upload X-Ray</h2>
+            <div class="max-w-md mx-auto">
+                <input id="xrayImage" type="file" accept="image/*" class="border p-2 w-full mb-2">
+                <input id="diagnosis" type="text" placeholder="Enter diagnosis" class="border p-2 w-full mb-2">
+                <button id="uploadSubmit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 w-full">Upload</button>
+                <p id="uploadFeedback" class="mt-2 text-center"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Appwrite Configuration
+        const client = new Appwrite.Client();
+        client
+            .setEndpoint('https://cloud.appwrite.io/v1') // Replace with your Appwrite endpoint
+            .setProject('680d35f30021babe5cc9'); // Replace with your Appwrite Project ID
+
+        const storage = new Appwrite.Storage(client);
+        const databases = new Appwrite.Databases(client);
+        const BUCKET_ID = '680d36a3002343bdd2ed'; // Replace with your Appwrite Storage Bucket ID
+        const DATABASE_ID = '681925ad000e5aa743b4'; // Replace with your Appwrite Database ID
+        const COLLECTION_ID = '681925d1002a5e76a9db'; // Replace with your Appwrite Collection ID
+
+        // View Management
+        const views = {
+            home: document.getElementById('homeView'),
+            study: document.getElementById('studyView'),
+            test: document.getElementById('testView'),
+            upload: document.getElementById('uploadView')
+        };
+
+        function showView(viewName) {
+            Object.values(views).forEach(view => view.classList.add('hidden'));
+            views[viewName].classList.remove('hidden');
+        }
+
+        document.getElementById('homeBtn').addEventListener('click', () => showView('home'));
+        document.getElementById('studyBtn').addEventListener('click', () => {
+            showView('study');
+            loadStudyImages();
+        });
+        document.getElementById('testBtn').addEventListener('click', () => {
+            showView('test');
+            loadTestImage();
+        });
+        document.getElementById('uploadBtn').addEventListener('click', () => showView('upload'));
+
+        // Study Mode: Load Images
+        async function loadStudyImages() {
+            try {
+                const response = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
+                const gallery = document.getElementById('studyGallery');
+                gallery.innerHTML = '';
+                response.documents.forEach(doc => {
+                    const imgUrl = `${client.config.endpoint}/storage/buckets/${BUCKET_ID}/files/${doc.fileId}/view?project=${client.config.project}`;
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-4 rounded shadow';
+                    card.innerHTML = `
+                        <img src="${imgUrl}" class="w-full h-48 object-cover rounded mb-2" alt="X-ray">
+                        <p><strong>Diagnosis:</strong> ${doc.diagnosis}</p>
+                    `;
+                    gallery.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading study images:', error);
+            }
+        }
+
+        // Test Mode: Load Random Image
+        let currentTestDoc = null;
+        async function loadTestImage() {
+            try {
+                const response = await databases.listDocuments(DATABASE_ID, COLLECTION_ID);
+                const documents = response.documents;
+                if (documents.length === 0) {
+                    document.getElementById('testFeedback').textContent = 'No images available.';
+                    return;
+                }
+                currentTestDoc = documents[Math.floor(Math.random() * documents.length)];
+                const imgUrl = `${client.config.endpoint}/storage/buckets/${BUCKET_ID}/files/${currentTestDoc.fileId}/view?project=${client.config.project}`;
+                document.getElementById('testImage').src = imgUrl;
+                document.getElementById('testImage').classList.remove('hidden');
+                document.getElementById('diagnosisInput').value = '';
+                document.getElementById('testFeedback').textContent = '';
+            } catch (error) {
+                console.error('Error loading test image:', error);
+            }
+        }
+
+        document.getElementById('submitDiagnosis').addEventListener('click', () => {
+            const userDiagnosis = document.getElementById('diagnosisInput').value.trim().toLowerCase();
+            const correctDiagnosis = currentTestDoc.diagnosis.toLowerCase();
+            const feedback = document.getElementById('testFeedback');
+            if (userDiagnosis === correctDiagnosis) {
+                feedback.textContent = 'Correct!';
+                feedback.className = 'mt-2 text-lg text-green-600';
+            } else {
+                feedback.textContent = `Incorrect. Correct diagnosis: ${currentTestDoc.diagnosis}`;
+                feedback.className = 'mt-2 text-lg text-red-600';
+            }
+        });
+
+        document.getElementById('nextTest').addEventListener('click', loadTestImage);
+
+        // Upload: Handle File and Diagnosis
+        document.getElementById('uploadSubmit').addEventListener('click', async () => {
+            const fileInput = document.getElementById('xrayImage');
+            const diagnosis = document.getElementById('diagnosis').value.trim();
+            const feedback = document.getElementById('uploadFeedback');
+
+            if (!fileInput.files[0] || !diagnosis) {
+                feedback.textContent = 'Please select an image and enter a diagnosis.';
+                feedback.className = 'text-red-600';
+                return;
+            }
+
+            try {
+                // Upload file to storage
+                const file = await storage.createFile(
+                    BUCKET_ID,
+                    Appwrite.ID.unique(),
+                    fileInput.files[0]
+                );
+
+                // Save metadata to database
+                await databases.createDocument(
+                    DATABASE_ID,
+                    Collection_ID,
+                    Appwrite.ID.unique(),
+                    {
+                        fileId: file.$id,
+                        diagnosis: diagnosis
+                    }
+                );
+
+                feedback.textContent = 'Upload successful!';
+                feedback.className = 'text-green-600';
+                fileInput.value = '';
+                document.getElementById('diagnosis').value = '';
+            } catch (error) {
+                feedback.textContent = 'Upload failed. Please try again.';
+                feedback.className = 'text-red-600';
+                console.error('Error uploading:', error);
+            }
+        });
+
+        // Initialize
+        showView('home');
+    </script>
+</body>
+</html>
