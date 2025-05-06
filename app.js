@@ -311,7 +311,7 @@ if (window.location.pathname.includes('test.html')) {
     const randomItem = data[Math.floor(Math.random() * data.length)];
     
     container.innerHTML = `
-      <img src="images/${randomItem.image}" alt="X-ray">
+      <img src="images/${randomItem.image}" alt="slide">
       <input type="text" id="diagnosisInput" placeholder="Enter your diagnosis">
       <button onclick="checkAnswer('${randomItem.diagnosis}')">Submit</button>
       <p id="result"></p>
@@ -447,7 +447,7 @@ function startQuiz(data, container) {
       <div class="quiz-container">
         <div class="quiz-progress">Question ${index + 1} of ${totalQuestions} | Score: ${score}</div>
         <div class="quiz-image">
-          <img src="${item.image}" alt="X-ray image" onerror="this.src='images/placeholder.png'">
+          <img src="${item.image}" alt="Slide image" onerror="this.src='images/placeholder.png'">
         </div>
         <div class="quiz-form">
           <label for="answer-input">What is the title/diagnosis of this image?</label>
@@ -475,50 +475,67 @@ function startQuiz(data, container) {
       const correctAnswer = item.title.trim();
       const feedback = document.getElementById('feedback');
       
-      // Make answer checking more lenient - user doesn't need to write the full title
-      // Consider correct if:
-      // 1. Key words from user's answer match parts of the correct title
-      // 2. OR if similarity is still above threshold
-      const userWords = userAnswer.toLowerCase().split(/\s+/);
-      const correctWords = correctAnswer.toLowerCase().split(/\s+/);
-      
-      // Check if user has typed significant keywords from the title
-      let keywordsMatched = 0;
-      for (const userWord of userWords) {
-        if (userWord.length < 3) continue; // Skip very short words
-        
-        for (const correctWord of correctWords) {
-          if (correctWord.length < 3) continue; // Skip very short words
-          
-          // Check if words are similar enough (handles spelling mistakes)
-          if (calculateSimilarity(userWord, correctWord) > 0.7) {
-            keywordsMatched++;
-            break;
-          }
-        }
-      }
-      
-      // If user matched enough keywords or overall similarity is good enough
-      const keywordThreshold = Math.min(2, Math.floor(correctWords.length / 2));
-      const overallSimilarity = calculateSimilarity(userAnswer.toLowerCase(), correctAnswer.toLowerCase());
-      const isCorrect = (keywordsMatched >= keywordThreshold) || (overallSimilarity >= 0.6);
-      
-      if (isCorrect) {
-        score++;
-        feedback.innerHTML = `
-          <div class="correct">
-            <h3>✅ Correct!</h3>
-            <p>The full answer is: ${correctAnswer}</p>
-          </div>
-        `;
-      } else {
+      // Immediately handle empty or very short answers as incorrect
+      if (!userAnswer || userAnswer.length < 3) {
         feedback.innerHTML = `
           <div class="incorrect">
             <h3>❌ Incorrect</h3>
+            <p>${!userAnswer ? "You didn't provide an answer." : "Your answer is too short."}</p>
             <p>The correct answer is: ${correctAnswer}</p>
-            <p>Your answer was: ${userAnswer}</p>
           </div>
         `;
+      } else {
+        // Make answer checking more lenient - user doesn't need to write the full title
+        const userWords = userAnswer.toLowerCase().split(/\s+/);
+        const correctWords = correctAnswer.toLowerCase().split(/\s+/);
+        
+        // Check if user has typed significant keywords from the title
+        let keywordsMatched = 0;
+        for (const userWord of userWords) {
+          if (userWord.length < 3) continue; // Skip very short words
+          
+          for (const correctWord of correctWords) {
+            if (correctWord.length < 3) continue; // Skip very short words
+            
+            // Make similarity threshold proportional to word length for short words
+            const minWordLength = Math.min(userWord.length, correctWord.length);
+            const similarityThreshold = minWordLength <= 3 ? 0.9 : 0.7;
+            
+            // Check if words are similar enough (handles spelling mistakes)
+            if (calculateSimilarity(userWord, correctWord) > similarityThreshold) {
+              keywordsMatched++;
+              break;
+            }
+          }
+        }
+        
+        // Require more substantial matching for correct answer
+        const keywordThreshold = Math.min(2, Math.floor(correctWords.length / 2));
+        const overallSimilarity = calculateSimilarity(userAnswer.toLowerCase(), correctAnswer.toLowerCase());
+        
+        // More strict checks for short answers
+        const isCorrect = userAnswer.length >= 3 && (
+          (keywordsMatched >= keywordThreshold) || 
+          (overallSimilarity >= (userAnswer.length < 5 ? 0.8 : 0.6))
+        );
+        
+        if (isCorrect) {
+          score++;
+          feedback.innerHTML = `
+            <div class="correct">
+              <h3>✅ Correct!</h3>
+              <p>The full answer is: ${correctAnswer}</p>
+            </div>
+          `;
+        } else {
+          feedback.innerHTML = `
+            <div class="incorrect">
+              <h3>❌ Incorrect</h3>
+              <p>The correct answer is: ${correctAnswer}</p>
+              <p>Your answer was: ${userAnswer}</p>
+            </div>
+          `;
+        }
       }
       
       // Add next button
@@ -552,10 +569,10 @@ function startQuiz(data, container) {
         <p>Your score: ${score} out of ${totalQuestions} (${percentage}%)</p>
         <div class="results-feedback">
           ${percentage >= 80 ? 
-            '<p>Excellent! You have great knowledge of these X-rays.</p>' : 
+            '<p>Excellent! You have great knowledge of these Slides.</p>' : 
             percentage >= 60 ? 
             '<p>Good job! Keep studying to improve.</p>' : 
-            '<p>You might need more practice with these X-rays.</p>'}
+            '<p>You might need more practice with these Slides.</p>'}
         </div>
         <button id="restart-quiz">Restart Quiz</button>
       </div>
