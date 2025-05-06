@@ -45,6 +45,183 @@ async function loadStudyMaterials() {
         content: "vibratory movment",
         image: "images/puplic photos_Page8.png"
       },
+      {
+        title: "toungue cleaner",
+        content: "",
+        image: "images/puplic photos_Page9.png"
+      },
+      {
+        title: "dental floss threader",
+        content: "interproximal surfaces with tight contact and under bridges",
+        image: "images/puplic photos_Page10.png"
+      },
+      {
+        title: "toothpick",
+        content: "cleaning interproximal surfaces with open contact, accessible furcations, and application of therapeutic agents",
+        image: "images/puplic photos_Page11.png"
+      },
+      {
+        title: "rubber tip",
+        content: "gingival simulation and massage",
+        image: "images/puplic photos_Page12.png"
+      },
+      
+      {
+        title: "interproximal toothbrush",
+        content: "cleaning spaces between teeth, furcations, and orthodontic bands and stimulation of gingival issues",
+        image: "images/puplic photos_Page13.png"
+      },      
+      {
+        title: "single tufted toothbrush",
+        content: "cleaning spaces between teeth, furcations, and orthodontic bands and stimulation of gingival issues",
+        image: "images/puplic photos_Page14.png"
+      },      
+      {
+        title: "tootheete",
+        content: "cleaning gum pads or few teeth without toothpaste",
+        image: "images/puplic photos_Page15.png"
+      },      
+      {
+        title: "oral irrigator",
+        content: "cleaning cervical surace,pocket, and under bridges or orthodontic appliances",
+        image: "images/puplic photos_Page16.png"
+      },      
+      {
+        title: "dental floss with holder",
+        content: "",
+        image: "images/puplic photos_Page17.png"
+      },      
+      {
+        title: "y shaped floss holder",
+        content: "",
+        image: "images/puplic photos_Page18.png"
+      },
+      {
+        title: "toludine blue test",
+        content: "",
+        image: "images/puplic photos_Page19.png"
+      },
+      {
+        title: "veloscope",
+        content: "",
+        image: "images/puplic photos_Page20.png"
+      },
+      {
+        title: "vizilite",
+        content: "",
+        image: "images/puplic photos_Page21.png"
+      },
+      {
+        title: "ready made mouth guard",
+        content: "",
+        image: "images/puplic photos_Page22.png"
+      },
+      {
+        title: "mouth formed mouth guard",
+        content: "",
+        image: "images/puplic photos_Page23.png"
+      },
+      {
+        title: "single layer custom made mouth guard",
+        content: "",
+        image: "images/puplic photos_Page24.png"
+      },
+      {
+        title: "pressure laminated custom made mouth guard",
+        content: "",
+        image: "images/puplic photos_Page25.png"
+      },
+      {
+        title: "helmet",
+        content: "",
+        image: "images/puplic photos_Page26.png"
+      },
+      {
+        title: "tongue guard & thumb guard",
+        content: "",
+        image: "images/puplic photos_Page27.png"
+      },
+      {
+        title: "oral screen",
+        content: "",
+        image: "images/puplic photos_Page28.png"
+      },
+      {
+        title: "lip bumper",
+        content: "",
+        image: "images/puplic photos_Page29.png"
+      },
+      {
+        title: "lip biting",
+        content: "",
+        image: "images/puplic photos_Page30.png"
+      },
+      {
+        title: "bruxism",
+        content: "",
+        image: "images/puplic photos_Page31.png"
+      },
+      {
+        title: "anterior bite plane",
+        content: "",
+        image: "images/puplic photos_Page32.png"
+      },
+      {
+        title: "z spring with posterior bite plane",
+        content: "",
+        image: "images/puplic photos_Page33.png"
+      },
+      {
+        title: "expansion screw with posterior bite plane",
+        content: "",
+        image: "images/puplic photos_Page34.png"
+      },
+      {
+        title: "humphery appliance",
+        content: "",
+        image: "images/puplic photos_Page35.png"
+      },
+      {
+        title: "hulterman appliance",
+        content: "",
+        image: "images/puplic photos_Page36.png"
+      },
+      {
+        title: "saliva flow rates",
+        content: "unstimulated normal saliva flow : 0.3 - 0.7 ml/min <br> unstimulated reduced saliva flow : 0 - 0.3 ml/min <br> stimulated normal saliva flow : 1 - 2 ml/min <br> stimulated reduced saliva flow <0.4 ml/min",
+        image: "images/puplic photos_Page37.png"
+      },
+      {
+        title: "methyl red test",
+        content: "chair side test, yellow turn red ph lower than 6(5.5), deep red lower than 5",
+        image: "images/puplic photos_Page38.png"
+      },
+      {
+        title: "snyder test",
+        content: "ability of MO to ferment CHO: 0.2ml saliva + glucose agar medium with bromocresol green , color change to yellow in 24 hours indicates marked caries activity,48 hours indicates moderate caries activity,72h indicates slight caries activity, more than 72h indicates no caries activity",
+        image: "images/puplic photos_Page39.png"
+      },
+      {
+        title: "modified snyder test",
+        content: "Modified Snyder test is chair side test through using semisolid agar in 5ml test tube where color change (green to yellow) from 0 to 4 scores observed from top to bottom of tube to indicate patient risk ,After 4 days: 0  No color change  No risk +1  Top ¼ color change +2  Top ½ color change +3  Top ¾ color change +4  Entire tube color change",
+        image: "images/puplic photos_Page40.png"
+      },{
+        title: "dento buff",
+        content: "Chair side test where Strips including dried acids and pH color indicator for detecting buffering capacity of saliva Color change indicates Buffering capacity of saliva from low ,moderate to high respectively (Yellow  pH 4 or less, Green pH 4.5 to 5.5 or Blue  pH 6 or more)",
+        image: "images/puplic photos_Page41.png"
+      },{
+        title: "LB count test",
+        content: "LB count detected trough Colony forming unit (CFU): - 0:1000 CFU  Mild risk - 1000: 10,000 CFU  Moderate risk - > 10,000 CFU  Sever risk",
+        image: "images/puplic photos_Page42.png"
+      },{
+        title: "dento cult",
+        content: "Chair side of Strips with growth media specific to LB or SM Saliva is applied to strip (Dipslide) and incubated for 48 hs for SM and for 96 hs for LB  colony density compared to colony density index",
+        image: "images/puplic photos_Page43.png"
+      },{
+        title: "dento cult",
+        content: "Chair side of Strips with growth media specific to LB or SM Saliva is applied to strip (Dipslide) and incubated for 48 hs for SM and for 96 hs for LB  colony density compared to colony density index",
+        image: "images/puplic photos_Page44.png"
+      }
   ];
   
   console.log('Successfully loaded embedded data:', embeddedData);
